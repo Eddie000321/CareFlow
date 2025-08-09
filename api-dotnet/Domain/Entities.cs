@@ -3,8 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CareFlow.Domain;
 
-public class Owner
+public class Owner // Table Owner
 {
+    // Properties Table Column
     public int Id { get; set; }
     [MaxLength(100)] public required string Name { get; set; } 
     [MaxLength(30)] public required string Phone { get; set; }
@@ -14,7 +15,7 @@ public class Owner
     public ICollection<Pet> Pets { get; set; } = new List<Pet>();
 }
 
-public class Pet
+public class Pet // Table Pet
 {
     public int OwnerId { get; set; }
     public Owner Owner { get; set; } = null!;    
@@ -24,12 +25,18 @@ public class Pet
     [MaxLength(30)] public required string Species { get; set; }
     [MaxLength(30)] public string? Breed { get; set; }
 
-    [Column(TypeName = "date")]
-    public required DateTime BirthDate { get; set; }
+    [Column(TypeName = "date")] public required DateTime BirthDate { get; set; }
 
+    /*
+      Pet → MedicalRecord is a 1:N relationship.
+      - Use ICollection<T> so EF can accurately track Add/Remove (change tracking).
+      - IEnumerable<T> is read-only and cannot express collection mutations.
+      - Expose an interface so the internal implementation (e.g., List or HashSet) stays swappable.
+    */
     public ICollection<MedicalRecord> MedicalRecords { get; set; } = new List<MedicalRecord>();
+    
 
-    // 
+ 
     [NotMapped] public int AgeYears => CalcAge(BirthDate).Years;
     [NotMapped] public int AgeMonths => CalcAge(BirthDate).Months;
     [NotMapped] public string AgeLabel => $"{AgeYears}y {AgeMonths}m";
@@ -60,7 +67,7 @@ public class Pet
 
 }
 
-public class MedicalRecord
+public class MedicalRecord // Table MedicalRecord
 {
     public int Id { get; set; }
 
