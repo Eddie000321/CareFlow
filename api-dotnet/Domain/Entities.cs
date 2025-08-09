@@ -17,7 +17,7 @@ public class Owner // Table Owner
 
 public class Pet // Table Pet
 {
-    public int OwnerId { get; set; }
+    public int OwnerId { get; set; } // FK
     public Owner Owner { get; set; } = null!;    
 
     public int Id { get; set; }
