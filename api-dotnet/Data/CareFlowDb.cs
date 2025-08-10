@@ -40,5 +40,10 @@ public class CareflowDb : DbContext
         .WithOne(p => p.Owner)
         .HasForeignKey(p => p.OwnerId)
         .OnDelete(DeleteBehavior.Cascade);
+
+        db.Entity<Pet>()
+        .HasMany(p => p.MedicalRecords)
+        .WithOne()
+        .
     }
 }
