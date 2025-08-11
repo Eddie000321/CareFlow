@@ -1,137 +1,185 @@
-# CareFlow - Animal Hospital EMR System
+# CareFlow API - .NET Backend
 
-## Project Overview
-CareFlow is the backend API for an **Animal Hospital Electronic Medical Record (EMR)** system.
-It efficiently stores and manages medical data such as patient (pet) information, owner information, clinical notes, test results, and lab reports, providing them via a REST API.
-
----
-
-## Project Goals
-1.  **Centralized Medical Data Management**
-    -   Safely and systematically store owner, pet, test, and medical record data.
-    -   Design a stable data storage structure based on PostgreSQL.
-
-2.  **Scalable and Maintainable Architecture**
-    -   Modular structure based on ASP.NET Core + Entity Framework Core.
-    -   Clear entity mapping using the Fluent API.
-
-3.  **Developer-Friendly API**
-    -   Implementation of CRUD-focused REST APIs.
-    -   Automated API documentation through Swagger UI.
-
-4.  **Automated Development Environment**
-    -   Automatic schema updates via EF Core Migrations.
-    -   Support for running PostgreSQL + API containers with Docker Compose.
-
----
+## Overview
+This is the ASP.NET Core backend API for the CareFlow Animal Hospital EMR System. It provides REST endpoints for managing pet medical records, owner information, clinical notes, and lab reports.
 
 ## Tech Stack
--   **Backend Framework:** ASP.NET Core (.NET 8)
--   **Database:** PostgreSQL
--   **ORM:** Entity Framework Core (with Fluent API mapping)
--   **API Docs:** Swagger / OpenAPI
--   **Container:** Docker, Docker Compose
-
----
+- **Framework:** ASP.NET Core (.NET 9.0)
+- **Database:** PostgreSQL
+- **ORM:** Entity Framework Core with Fluent API
+- **API Documentation:** Swagger/OpenAPI
+- **Logging:** Serilog
+- **Container:** Docker support
 
 ## Project Structure
 
 ```
 api-dotnet/
-│── Controllers/         # Defines API endpoints
-│    ├── PetsController.cs
-│    ├── LabReportController.cs
+├── Controllers/                    # API Controllers
+│   ├── PetsController.cs          # Pet management endpoints
+│   └── LabReportController.cs     # Lab report endpoints
 │
-│── Data/
-│    ├── Configuration/  # Entity mapping configurations (Fluent API)
-│    ├── CareFlowDb.cs   # DbContext (Manages DB connection)
-│    ├── Seed.cs         # Initial data seeding
-│    ├── expressions/    # Expressions for data comparison/analysis
+├── Data/                          # Data layer
+│   ├── CareFlowDb.cs             # DbContext
+│   ├── Seed.cs                   # Database seeding
+│   ├── Configuration/            # Entity configurations (Fluent API)
+│   │   ├── ClinicalNoteConfig.cs
+│   │   ├── LabReportConfig.cs
+│   │   ├── LabResultConfig.cs
+│   │   ├── OwnerConfig.cs
+│   │   └── PetConfig.cs
+│   └── expressions/              # Query expressions
+│       └── DataDiffExpressions.cs
 │
-│── Domain/              # Entity classes (Mapped to DB tables)
-│    ├── Pet.cs
-│    ├── Owner.cs
-│    ├── LabReport.cs
-│    ├── LabResult.cs
-│    ├── ClinicalNote.cs
+├── Domain/                       # Domain entities
+│   ├── Pet.cs                   # Pet entity
+│   ├── Owner.cs                 # Owner entity with address
+│   ├── ClinicalNote.cs          # Clinical notes
+│   ├── LabReport.cs             # Lab reports
+│   ├── LabResult.cs             # Individual lab results
+│   └── AgoLabel.cs              # Utility for date formatting
 │
-│── appsettings.json     # Default settings (including DB connection string)
-│── appsettings.Development.json # Development-specific settings
-│── docker-compose.yml   # Configuration for PostgreSQL + API containers
-│── Program.cs           # App entry point and service registration
+├── Program.cs                   # Application entry point
+├── api-dotnet.csproj           # Project file with dependencies
+├── appsettings.json            # Application configuration
+├── appsettings.Development.json # Development settings
+└── docker-compose.yml          # Docker composition
 ```
 
----
+## Key Dependencies
+- `Microsoft.AspNetCore.OpenApi` - OpenAPI support
+- `Npgsql.EntityFrameworkCore.PostgreSQL` - PostgreSQL provider
+- `Serilog.AspNetCore` - Structured logging
+- `Swashbuckle.AspNetCore` - Swagger UI generation
 
-## Key Features
-1.  **Pet Management**
-    -   Create / Read / Update / Delete APIs for pets.
+## Database Schema
 
-2.  **Owner Management**
-    -   Create / Read / Update / Delete APIs for owners.
+### Core Entities
+- **Owner**: Pet owners with contact info and address
+- **Pet**: Animals with breed, birth date, and calculated age
+- **ClinicalNote**: Medical notes for pets
+- **LabReport**: Lab test reports with metadata
+- **LabResult**: Individual test results within reports
 
-3.  **Lab Report Management**
-    -   Create / Read / Update / Delete APIs for lab reports.
+### Key Features
+- Complex type mapping for Owner addresses
+- Automatic age calculation for pets
+- Cascading deletes for data integrity
+- Indexed fields for performance
 
-4.  **Clinical Note Management**
-    -   API for creating and viewing medical records.
+## API Endpoints
 
-5.  **Data Comparison/Change Detection**
-    -   Provides Expressions to extract only modified data (`DataDiffExpressions.cs`).
+### Pets
+- `GET /api/pets` - List all pets
+- `GET /api/pets/{id}` - Get pet by ID
+- `POST /api/pets` - Create new pet
+- `PUT /api/pets/{id}` - Update pet
+- `DELETE /api/pets/{id}` - Delete pet
 
-6.  **Swagger-based API Documentation**
-    -   API testing available at the `/swagger` path.
+### Lab Reports
+- `GET /api/labreports` - List lab reports
+- `GET /api/labreports/{id}` - Get lab report with results
+- `POST /api/labreports` - Create lab report
+- `PUT /api/labreports/{id}` - Update lab report
+- `DELETE /api/labreports/{id}` - Delete lab report
 
-7.  **Automatic DB Migration (in Development mode)**
-    -   Executes `db.Database.Migrate()` in `Program.cs`.
+## Configuration
 
----
+### Database Connection
+Configure PostgreSQL connection in `appsettings.json`:
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5499;Database=careflow;Username=postgres;Password=postgres"
+  }
+}
+```
 
-## How to Run (Development Environment)
-1.  **Clone the repository**
-    ```bash
-    git clone https://github.com/your-repo/CareFlow.git
-    cd CareFlow/api-dotnet
-    ```
+### Logging
+Serilog is configured for structured logging with console output.
 
-2.  **Run with Docker**
-    ```bash
-    docker-compose up --build
-    ```
+## Running the Application
 
-3.  **(Optional) Apply migrations manually**
-    ```bash
-    dotnet ef database update
-    ```
+### Prerequisites
+- .NET 9.0 SDK
+- PostgreSQL database
+- Docker (optional)
 
-4.  **Access Swagger UI**
-    [https://localhost:5001/swagger](https://localhost:5001/swagger)
+### Local Development
+1. **Clone and navigate:**
+   ```bash
+   cd api-dotnet
+   ```
 
----
+2. **Restore packages:**
+   ```bash
+   dotnet restore
+   ```
 
-## Development Guidelines
-1.  **Changing the DB Schema**
-    -   Modify entity mappings in `Data/Configuration/`.
-    -   Create a migration and update the database.
-    ```bash
-    dotnet ef migrations add MigrationName
-    dotnet ef database update
-    ```
+3. **Update database connection** in `appsettings.Development.json`
 
-2.  **Adding a New Endpoint**
-    -   Create an entity class in `Domain/`.
-    -   Add a Fluent API configuration in `Data/Configuration/`.
-    -   Create a controller in `Controllers/`.
-    -   If necessary, add dummy data in `Seed.cs`.
+4. **Run migrations:**
+   ```bash
+   dotnet ef database update
+   ```
 
-3.  **Deployment Considerations**
-    -   Remove automatic migration from development mode.
-    -   Manage DB connection strings with environment variables.
-    -   Add authentication/authorization logic and enforce HTTPS.
+5. **Start the application:**
+   ```bash
+   dotnet run
+   ```
 
----
+6. **Access Swagger UI:**
+   Open `https://localhost:5001/swagger` in your browser
 
-## Future Plans
--   User authentication and role-based access control.
--   Real-time clinical note synchronization (SignalR).
--   Cloud deployment (Azure or AWS).
+### Docker Compose
+```bash
+docker-compose up --build
+```
+
+## Development Workflow
+
+### Adding New Entities
+1. Create entity class in `Domain/`
+2. Add configuration in `Data/Configuration/`
+3. Create migration: `dotnet ef migrations add MigrationName`
+4. Update database: `dotnet ef database update`
+5. Add controller in `Controllers/`
+
+### Entity Framework Commands
+```bash
+# Add migration
+dotnet ef migrations add MigrationName
+
+# Update database
+dotnet ef database update
+
+# Remove last migration
+dotnet ef migrations remove
+```
+
+## Database Seeding
+The `Seed.cs` class provides bulk data generation for testing:
+- 20,000 owners
+- ~24,000 pets
+- Clinical notes and lab reports with realistic distributions
+- Configurable years of historical data
+
+## Architecture Notes
+- Uses Entity Framework Code First approach
+- Fluent API for precise entity mapping
+- Automatic migrations in development mode
+- Repository pattern through DbContext
+- Structured logging with Serilog
+
+## API Documentation
+When running in development mode, comprehensive API documentation is available at `/swagger` with:
+- Interactive endpoint testing
+- Request/response schemas
+- Authentication requirements (when implemented)
+
+## Future Enhancements
+- Authentication and authorization
+- API versioning
+- Performance monitoring
+- Caching strategies
+- Additional endpoints for clinical workflows
