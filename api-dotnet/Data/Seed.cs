@@ -1,3 +1,9 @@
+using api_dotnet.Domain;
+using api_dotnet.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace api_dotnet.Data;
+
 public static class Seed
 {
     public static async Task EnsureBigSeedAsync(CareflowDb db, int years = 5)
@@ -15,7 +21,7 @@ public static class Seed
         {
             owners.Add(new Owner {
                 Name = $"Owner {i:D5}", Phone = $"555-{1000+i:D4}",
-                Address = $"{i} Main St"
+                OwnerAddress = new Owner.Address { Street = $"{i} Main St" }
             });
         }
         await BulkAddAsync(db, owners, 2000);

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace CareFlow.Domain;
+namespace api_dotnet.Domain;
 
 public class LabResult
 {

@@ -1,4 +1,4 @@
-namespace CareFlow.Domain;
+namespace api_dotnet.Domain;
 
 public enum LabTestType { CBC, Chemistry, Urinalysis, Thyroid, Unknown }
 

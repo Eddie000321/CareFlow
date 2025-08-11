@@ -1,7 +1,7 @@
-using CareFlow.Domain;
+using api_dotnet.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace CareFlow.Data;
+namespace api_dotnet.Data;
 
 public class CareflowDb : DbContext
 {

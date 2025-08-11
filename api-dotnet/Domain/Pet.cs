@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CareFlow.Domain;
+namespace api_dotnet.Domain;
 
 public class Pet
 {

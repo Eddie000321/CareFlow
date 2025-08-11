@@ -1,6 +1,8 @@
-using CareFlow.Domain;
+using api_dotnet.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace api_dotnet.Data.Configuration;
 
 public class OwnerConfig : IEntityTypeConfiguration<Owner> // Connect with CareFlowDb.cs
 {
