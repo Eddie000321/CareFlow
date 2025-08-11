@@ -13,9 +13,9 @@ public class CareflowDb : DbContext
     public DbSet<LabReport>    LabReports    => Set<LabReport>();
     public DbSet<LabResult>    LabResults    => Set<LabResult>();
 
-    protected override void OnModelCreating(ModelBuilder b)
+    protected override void OnModelCreating(ModelBuilder mb) // make combine every Configuration files in same Assembly(=Project)
     {
-        base.OnModelCreating(b);
-        b.ApplyConfigurationsFromAssembly(typeof(CareflowDb).Assembly);
+        base.OnModelCreating(mb);
+        mb.ApplyConfigurationsFromAssembly(typeof(CareflowDb).Assembly);
     }
 }

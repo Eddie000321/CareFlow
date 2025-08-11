@@ -8,14 +8,14 @@ public class LabResult
     public int LabReportId { get; set; }
     public LabReport Report { get; set; } = null!;
 
-    [MaxLength(64)]  public string AnalyteCode { get; set; } = ""; // 표준코드 있으면
-    [MaxLength(128)] public string AnalyteName { get; set; } = ""; // 표시명
+    [MaxLength(64)]  public string AnalyteCode { get; set; } = ""; // Standard code, if available
+    [MaxLength(128)] public string AnalyteName { get; set; } = ""; // Display name
 
-    public decimal? ValueNumeric { get; set; }   // 수치
-    public string?  ValueText    { get; set; }   // 정성(ex: "trace")
-    public string?  Units        { get; set; }   // ex: mg/dL
+    public decimal? ValueNumeric { get; set; }   // Numeric value
+    public string?  ValueText    { get; set; }   // Qualitative (e.g., "trace")
+    public string?  Units        { get; set; }   // e.g., mg/dL
 
     public decimal? RefLow  { get; set; }
     public decimal? RefHigh { get; set; }
-    public string?  Flag    { get; set; }        // "L","H","A" 등
+    public string?  Flag    { get; set; }        // e.g., "L", "H", "A"
 }
