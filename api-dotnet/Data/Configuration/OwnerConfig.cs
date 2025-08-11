@@ -27,10 +27,8 @@ public class OwnerConfig : IEntityTypeConfiguration<Owner> // Connect with CareF
             a.Property(p => p.PostalCode).IsRequired().HasMaxLength(10).HasColumnName("Postal Code");
         });
 
-        // For search
-        mb.HasIndex(o => EF.Property<String>(o, "City"));
-        mb.HasIndex(o => EF.Property<String>(o, "Province"));
-        mb.HasIndex(o => EF.Property<String>(o, "PostalCode"));
+        // Complex property indexes will be created automatically by EF Core
+        // Additional indexes can be added in migration files if needed
 
         mb.HasMany(o => o.Pets).WithOne(p => p.Owner).HasForeignKey(p => p.OwnerId).OnDelete(DeleteBehavior.Cascade);
     }

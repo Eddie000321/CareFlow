@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: careflow
     ports:
-      - "5499:5499"
+      - "5499:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 volumes:

@@ -1,0 +1,100 @@
+Using launch settings from /Users/eddie/Projects/CareFlow/api-dotnet/Properties/launchSettings.json...
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (10ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "MigrationId", "ProductVersion"
+      FROM "__EFMigrationsHistory"
+      ORDER BY "MigrationId";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+          "MigrationId" character varying(150) NOT NULL,
+          "ProductVersion" character varying(32) NOT NULL,
+          CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+      );
+info: Microsoft.EntityFrameworkCore.Migrations[20411]
+      Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "MigrationId", "ProductVersion"
+      FROM "__EFMigrationsHistory"
+      ORDER BY "MigrationId";
+info: Microsoft.EntityFrameworkCore.Migrations[20405]
+      No migrations were applied. The database is already up to date.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Pets" AS p)
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5000
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: /Users/eddie/Projects/CareFlow/api-dotnet
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
+      Failed to determine the https port for redirect.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (391ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT c."Id", c."PetId", p."Name" AS "PetName", c."RecordedAt", c."Author", c."Content"
+      FROM "ClinicalNotes" AS c
+      INNER JOIN "Pets" AS p ON c."PetId" = p."Id"
+      ORDER BY c."RecordedAt" DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (292ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT c."Id", c."PetId", p."Name" AS "PetName", c."RecordedAt", c."Author", c."Content"
+      FROM "ClinicalNotes" AS c
+      INNER JOIN "Pets" AS p ON c."PetId" = p."Id"
+      ORDER BY c."RecordedAt" DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (285ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT c."Id", c."PetId", p."Name" AS "PetName", c."RecordedAt", c."Author", c."Content"
+      FROM "ClinicalNotes" AS c
+      INNER JOIN "Pets" AS p ON c."PetId" = p."Id"
+      ORDER BY c."RecordedAt" DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (8ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT l."Id", l."PetId", p."Name" AS "PetName", CASE l."TestType"
+          WHEN 0 THEN 'CBC'
+          WHEN 1 THEN 'Chemistry'
+          WHEN 2 THEN 'Urinalysis'
+          WHEN 3 THEN 'Thyroid'
+          WHEN 4 THEN 'Unknown'
+          ELSE l."TestType"::text
+      END AS "TestType", l."CollectedAt", l."ReportedAt", l."LabName", l."Status", (
+          SELECT count(*)::int
+          FROM "LabResults" AS l0
+          WHERE l."Id" = l0."LabReportId") AS "ResultCount"
+      FROM "LabReports" AS l
+      INNER JOIN "Pets" AS p ON l."PetId" = p."Id"
+      ORDER BY l."ReportedAt" DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT l."Id", l."LabReportId", l."AnalyteCode", l."AnalyteName", l."ValueNumeric", l."ValueText", l."Units", l."RefLow", l."RefHigh", l."Flag", p."Name", CASE l0."TestType"
+          WHEN 0 THEN 'CBC'
+          WHEN 1 THEN 'Chemistry'
+          WHEN 2 THEN 'Urinalysis'
+          WHEN 3 THEN 'Thyroid'
+          WHEN 4 THEN 'Unknown'
+          ELSE l0."TestType"::text
+      END, l0."ReportedAt"
+      FROM "LabResults" AS l
+      INNER JOIN "LabReports" AS l0 ON l."LabReportId" = l0."Id"
+      INNER JOIN "Pets" AS p ON l0."PetId" = p."Id"
+      ORDER BY l0."ReportedAt" DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (314ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT c."Id", c."PetId", p."Name" AS "PetName", c."RecordedAt", c."Author", c."Content"
+      FROM "ClinicalNotes" AS c
+      INNER JOIN "Pets" AS p ON c."PetId" = p."Id"
+      ORDER BY c."RecordedAt" DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (269ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT c."Id", c."PetId", p."Name" AS "PetName", c."RecordedAt", c."Author", c."Content"
+      FROM "ClinicalNotes" AS c
+      INNER JOIN "Pets" AS p ON c."PetId" = p."Id"
+      ORDER BY c."RecordedAt" DESC
