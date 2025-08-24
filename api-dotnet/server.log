@@ -98,3 +98,5 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
       FROM "ClinicalNotes" AS c
       INNER JOIN "Pets" AS p ON c."PetId" = p."Id"
       ORDER BY c."RecordedAt" DESC
+info: Microsoft.Hosting.Lifetime[0]
+      Application is shutting down...
