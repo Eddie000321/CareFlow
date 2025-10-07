@@ -16,8 +16,11 @@ This is the ASP.NET Core backend API for the CareFlow Animal Hospital EMR System
 ```
 api-dotnet/
 ├── Controllers/                    # API Controllers
+│   ├── OwnersController.cs        # Owner management endpoints
 │   ├── PetsController.cs          # Pet management endpoints
-│   └── LabReportController.cs     # Lab report endpoints
+│   ├── LabReportsController.cs    # Lab report endpoints
+│   ├── LabResultsController.cs    # Lab result endpoints
+│   └── ClinicalNotesController.cs # Clinical note endpoints
 │
 ├── Data/                          # Data layer
 │   ├── CareFlowDb.cs             # DbContext
@@ -29,7 +32,7 @@ api-dotnet/
 │   │   ├── OwnerConfig.cs
 │   │   └── PetConfig.cs
 │   └── expressions/              # Query expressions
-│       └── DataDiffExpressions.cs
+│       └── DateDiffExpressions.cs
 │
 ├── Domain/                       # Domain entities
 │   ├── Pet.cs                   # Pet entity
@@ -43,6 +46,7 @@ api-dotnet/
 ├── api-dotnet.csproj           # Project file with dependencies
 ├── appsettings.json            # Application configuration
 ├── appsettings.Development.json # Development settings
+├── Dockerfile                  # API container definition
 └── docker-compose.yml          # Docker composition
 ```
 
@@ -69,19 +73,44 @@ api-dotnet/
 
 ## API Endpoints
 
+### Owners
+- `GET /api/owners` - List owners
+- `GET /api/owners/{id}` - Get owner with pets
+- `POST /api/owners` - Create owner
+- `PUT /api/owners/{id}` - Update owner
+- `DELETE /api/owners/{id}` - Delete owner
+
 ### Pets
-- `GET /api/pets` - List all pets
+- `GET /api/pets` - List pets with calculated ages
 - `GET /api/pets/{id}` - Get pet by ID
-- `POST /api/pets` - Create new pet
+- `POST /api/pets` - Create pet
 - `PUT /api/pets/{id}` - Update pet
 - `DELETE /api/pets/{id}` - Delete pet
 
 ### Lab Reports
 - `GET /api/labreports` - List lab reports
-- `GET /api/labreports/{id}` - Get lab report with results
+- `GET /api/labreports/{id}` - Get lab report summary
+- `GET /api/labreports/{id}/with-results` - Get lab report with results
 - `POST /api/labreports` - Create lab report
 - `PUT /api/labreports/{id}` - Update lab report
 - `DELETE /api/labreports/{id}` - Delete lab report
+
+### Lab Results
+- `GET /api/labresults` - List lab results with report metadata
+- `GET /api/labresults/{id}` - Get lab result
+- `GET /api/labresults/report/{reportId}` - List results for a report
+- `GET /api/labresults/abnormal` - List abnormal results
+- `POST /api/labresults` - Create lab result
+- `PUT /api/labresults/{id}` - Update lab result
+- `DELETE /api/labresults/{id}` - Delete lab result
+
+### Clinical Notes
+- `GET /api/clinicalnotes` - List clinical notes
+- `GET /api/clinicalnotes/{id}` - Get clinical note
+- `GET /api/clinicalnotes/pet/{petId}` - List clinical notes for a pet
+- `POST /api/clinicalnotes` - Create clinical note
+- `PUT /api/clinicalnotes/{id}` - Update clinical note
+- `DELETE /api/clinicalnotes/{id}` - Delete clinical note
 
 ## Configuration
 
@@ -129,12 +158,15 @@ Serilog is configured for structured logging with console output.
    ```
 
 6. **Access Swagger UI:**
-   Open `https://localhost:5001/swagger` in your browser
+   - Local run: `https://localhost:7117/swagger` (HTTPS profile)
+   - Docker Compose: `http://localhost:5000/swagger`
 
 ### Docker Compose
 ```bash
 docker-compose up --build
 ```
+
+This builds the API container, starts PostgreSQL, and exposes the API at `http://localhost:5000`.
 
 ## Development Workflow
 

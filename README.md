@@ -26,7 +26,7 @@ It efficiently stores and manages medical data such as patient (pet) information
 ---
 
 ## Tech Stack
--   **Backend Framework:** ASP.NET Core (.NET 8)
+-   **Backend Framework:** ASP.NET Core (.NET 9)
 -   **Database:** PostgreSQL
 -   **ORM:** Entity Framework Core (with Fluent API mapping)
 -   **API Docs:** Swagger / OpenAPI
@@ -39,8 +39,11 @@ It efficiently stores and manages medical data such as patient (pet) information
 ```
 api-dotnet/
 │── Controllers/         # Defines API endpoints
+│    ├── OwnersController.cs
 │    ├── PetsController.cs
-│    ├── LabReportController.cs
+│    ├── LabReportsController.cs
+│    ├── LabResultsController.cs
+│    ├── ClinicalNotesController.cs
 │
 │── Data/
 │    ├── Configuration/  # Entity mapping configurations (Fluent API)
@@ -58,6 +61,7 @@ api-dotnet/
 │── appsettings.json     # Default settings (including DB connection string)
 │── appsettings.Development.json # Development-specific settings
 │── docker-compose.yml   # Configuration for PostgreSQL + API containers
+│── Dockerfile           # Container build instructions for the API
 │── Program.cs           # App entry point and service registration
 ```
 
@@ -77,12 +81,15 @@ api-dotnet/
     -   API for creating and viewing medical records.
 
 5.  **Data Comparison/Change Detection**
-    -   Provides Expressions to extract only modified data (`DataDiffExpressions.cs`).
+    -   Provides Expressions to extract only modified data (`DateDiffExpressions.cs`).
 
-6.  **Swagger-based API Documentation**
+6.  **Structured Logging**
+    -   Configured Serilog pipeline with console sink for development visibility.
+
+7.  **Swagger-based API Documentation**
     -   API testing available at the `/swagger` path.
 
-7.  **Automatic DB Migration (in Development mode)**
+8.  **Automatic DB Migration (in Development mode)**
     -   Executes `db.Database.Migrate()` in `Program.cs`.
 
 ---
@@ -105,7 +112,8 @@ api-dotnet/
     ```
 
 4.  **Access Swagger UI**
-    [https://localhost:5001/swagger](https://localhost:5001/swagger)
+    -   Local run (HTTPS profile): `https://localhost:7117/swagger`
+    -   Docker Compose: `http://localhost:5000/swagger`
 
 ---
 

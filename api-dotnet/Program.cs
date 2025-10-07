@@ -1,7 +1,14 @@
 using api_dotnet.Data; // CareflowDb, Configurations
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, services, loggerConfiguration) =>
+    loggerConfiguration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext());
 
 // 1. Add DbContext (PostgreSQL)
 builder.Services.AddDbContext<CareflowDb>(options =>
@@ -15,6 +22,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 // 4. Apply migrations and seed data automatically (optional for dev only)
 using (var scope = app.Services.CreateScope())
@@ -65,8 +74,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
+else
+{
+    app.UseHttpsRedirection();
+}
 
 app.MapControllers(); // If using attribute routing
 
