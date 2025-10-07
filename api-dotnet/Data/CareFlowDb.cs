@@ -9,7 +9,7 @@ public class CareflowDb : DbContext
 
     public DbSet<Owner>        Owners        => Set<Owner>();
     public DbSet<Pet>          Pets          => Set<Pet>();
-    public DbSet<ClinicalNote> ClinicalNotes => Set<ClinicalNote>();
+    public DbSet<ClinicalNote> ClinicalNotes => Set<ClinicalNote>();  
     public DbSet<LabReport>    LabReports    => Set<LabReport>();
     public DbSet<LabResult>    LabResults    => Set<LabResult>();
 

@@ -18,5 +18,5 @@ public static class DateDiffExpressions
         (birthDate, currentDate) =>
             ((currentDate.Year - birthDate.Year) * 12)
             + (currentDate.Month - birthDate.Month)
-            - (currentDate.Day < birthDate.Day ? 1 : 0);
+            - (currentDate.Day < birthDate.Day ? 1 : 0); 
 }
