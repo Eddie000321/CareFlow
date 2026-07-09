@@ -30,6 +30,6 @@ public class OwnerConfig : IEntityTypeConfiguration<Owner> // Connect with CareF
         // Complex property indexes will be created automatically by EF Core
         // Additional indexes can be added in migration files if needed
 
-        mb.HasMany(o => o.Pets).WithOne(p => p.Owner).HasForeignKey(p => p.OwnerId).OnDelete(DeleteBehavior.Cascade);
+        mb.HasMany(o => o.Pets).WithOne(p => p.Owner).HasForeignKey(p => p.OwnerId).OnDelete(DeleteBehavior.Restrict);
     }
 }

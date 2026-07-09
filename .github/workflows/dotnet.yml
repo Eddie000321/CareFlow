@@ -1,0 +1,56 @@
+name: .NET quality checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: careflow_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d careflow_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore
+        run: dotnet restore CareFlow.sln
+
+      - name: Build
+        run: dotnet build CareFlow.sln -c Release --no-restore --nologo
+
+      - name: Install EF Core CLI
+        run: dotnet tool install --global dotnet-ef --version 9.0.8
+
+      - name: Apply migrations to clean PostgreSQL schema
+        env:
+          ConnectionStrings__DefaultConnection: Host=localhost;Port=5432;Database=careflow_ci;Username=postgres;Password=postgres
+        run: |
+          dotnet ef database update --project api-dotnet/api-dotnet.csproj --startup-project api-dotnet/api-dotnet.csproj --configuration Release --no-build
+          dotnet ef database update --project api-dotnet/api-dotnet.csproj --startup-project api-dotnet/api-dotnet.csproj --configuration Release --no-build
+
+      - name: Test
+        run: dotnet test CareFlow.sln -c Release --no-build --nologo

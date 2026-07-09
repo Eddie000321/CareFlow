@@ -40,14 +40,7 @@ public class PetsController : ControllerBase
 
         var result = rows.Select(x =>
         {
-            var y = Math.Max(0, x.TotalMonths / 12);
-            var m = Math.Max(0, x.TotalMonths % 12);
-            var days = (asOf - x.BirthDate.Date).Days;
-
-            string label;
-            if (days < 28) label = $"{days}d";
-            else if (x.TotalMonths < 24) label = $"{Math.Max(0, x.TotalMonths)}m";
-            else label = $"{y}y {m}m";
+            var age = PetAgeCalculator.FromBirthDate(x.BirthDate, asOf);
 
             return new PetDto
             {
@@ -56,11 +49,11 @@ public class PetsController : ControllerBase
                 Species = x.Species,
                 Breed = x.Breed,
                 BirthDate = x.BirthDate,
-                AgeYears = y,
-                AgeMonths = m,
-                AgeTotalMonths = Math.Max(0, x.TotalMonths),
-                AgeAsOf = asOf,
-                AgeLabel = label
+                AgeYears = age.Years,
+                AgeMonths = age.Months,
+                AgeTotalMonths = age.TotalMonths,
+                AgeAsOf = age.AsOf,
+                AgeLabel = age.Label
             };
         });
 
@@ -94,14 +87,7 @@ public class PetsController : ControllerBase
             return NotFound();
         }
 
-        var y = Math.Max(0, pet.TotalMonths / 12);
-        var m = Math.Max(0, pet.TotalMonths % 12);
-        var days = (asOf - pet.BirthDate.Date).Days;
-
-        string label;
-        if (days < 28) label = $"{days}d";
-        else if (pet.TotalMonths < 24) label = $"{Math.Max(0, pet.TotalMonths)}m";
-        else label = $"{y}y {m}m";
+        var age = PetAgeCalculator.FromBirthDate(pet.BirthDate, asOf);
 
         var result = new PetDto
         {
@@ -110,19 +96,33 @@ public class PetsController : ControllerBase
             Species = pet.Species,
             Breed = pet.Breed,
             BirthDate = pet.BirthDate,
-            AgeYears = y,
-            AgeMonths = m,
-            AgeTotalMonths = Math.Max(0, pet.TotalMonths),
-            AgeAsOf = asOf,
-            AgeLabel = label
+            AgeYears = age.Years,
+            AgeMonths = age.Months,
+            AgeTotalMonths = age.TotalMonths,
+            AgeAsOf = age.AsOf,
+            AgeLabel = age.Label
         };
 
         return Ok(result);
     }
 
     [HttpPost]
-    public async Task<ActionResult<Pet>> PostPet(Pet pet)
+    public async Task<ActionResult<Pet>> PostPet(CreatePetRequest request)
     {
+        if (!await _context.Owners.AnyAsync(owner => owner.Id == request.OwnerId))
+        {
+            return BadRequest("Cannot create a pet for an owner that does not exist.");
+        }
+
+        var pet = new Pet
+        {
+            OwnerId = request.OwnerId,
+            Name = request.Name,
+            Species = request.Species,
+            Breed = request.Breed,
+            BirthDate = request.BirthDate!.Value
+        };
+
         _context.Pets.Add(pet);
         await _context.SaveChangesAsync();
 
@@ -161,10 +161,19 @@ public class PetsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeletePet(int id)
     {
-        var pet = await _context.Pets.FindAsync(id);
+        var pet = await _context.Pets
+            .Include(p => p.ClinicalNotes)
+            .Include(p => p.LabReports)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
         if (pet == null)
         {
             return NotFound();
+        }
+
+        if (pet.ClinicalNotes.Count > 0 || pet.LabReports.Count > 0)
+        {
+            return BadRequest("Cannot delete a pet with existing clinical notes or lab reports. Archive records first.");
         }
 
         _context.Pets.Remove(pet);

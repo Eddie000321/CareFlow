@@ -90,14 +90,21 @@ api-dotnet/
     -   API testing available at the `/swagger` path.
 
 8.  **Automatic DB Migration (in Development mode)**
-    -   Executes `db.Database.Migrate()` in `Program.cs`.
+    -   Executes `await db.Database.MigrateAsync()` in `Program.cs`.
+
+9.  **Retention-Oriented Delete Guards**
+    -   Owner and pet deletes are blocked when dependent pets, clinical notes, or lab reports exist.
+    -   EF Core relationship configuration uses restrictive delete behavior for retained clinical history.
+
+10. **Testable Age Labels**
+    -   Pet age-label calculation is extracted into a reusable domain helper with xUnit coverage.
 
 ---
 
 ## How to Run (Development Environment)
 1.  **Clone the repository**
     ```bash
-    git clone https://github.com/your-repo/CareFlow.git
+    git clone https://github.com/Eddie000321/CareFlow.git
     cd CareFlow/api-dotnet
     ```
 
@@ -133,13 +140,45 @@ api-dotnet/
     -   If necessary, add dummy data in `Seed.cs`.
 
 3.  **Deployment Considerations**
-    -   Remove automatic migration from development mode.
+    -   Keep automatic migration and sample seeding limited to development mode.
+    -   Apply reviewed migrations as a separate production release step.
     -   Manage DB connection strings with environment variables.
     -   Add authentication/authorization logic and enforce HTTPS.
+
+## Build and Test
+
+From the repository root:
+
+```bash
+dotnet restore CareFlow.sln
+dotnet build CareFlow.sln -c Release --no-restore
+dotnet test CareFlow.sln -c Release --no-build
+```
+
+The same restore/build/test sequence runs for pushes and pull requests through
+`.github/workflows/dotnet.yml`. CI also starts a clean PostgreSQL 16 service and
+applies all EF migrations twice; the second application verifies that the
+current migration set is idempotent on the resulting schema.
+
+The xUnit suite covers pet age-label boundaries, owner/pet retention guards,
+request validation for bounded lab metadata,
+runtime-to-migration schema consistency, and an in-memory HTTP workflow through
+the real ASP.NET Core middleware and controller pipeline. A PostgreSQL-backed
+integration suite remains future work.
+
+## Case Study: Retention-Safe Schema Evolution
+
+- **Problem:** Controller guards protected clinical history, but the checked-in EF snapshot still described cascading deletes and the pet-create endpoint exposed an EF navigation property as part of its request contract.
+- **Decision:** Add a reviewed migration that aligns foreign keys, query indexes, and bounded lab metadata with the runtime model, plus a focused `CreatePetRequest` DTO that accepts `ownerId` without requiring a nested owner entity. Length preflight checks stop the migration instead of silently trimming existing data.
+- **Verification:** A schema-contract test fails when the runtime model and latest snapshot diverge, `WebApplicationFactory` tests exercise the HTTP workflow and exact validation errors for bounded lab fields, and GitHub Actions applies the complete migration chain to an ephemeral PostgreSQL 16 database.
+- **Limits:** PostgreSQL CI proves clean-database migration and idempotency only; it does not validate the migration against representative existing data. HTTP persistence tests still use EF's in-memory provider, and authentication, soft delete, and audit history are not implemented. Running this migration's `Down` method intentionally restores the legacy cascade-delete actions, so downgrade requires an explicit retention-risk review. The API is unversioned despite the pet-create contract change, concurrent delete/dependency races are protected by restrictive foreign keys but are not normalized to a stable conflict response, and multi-navigation lab-report query plans have not been profiled at realistic cardinality.
+- **Learning:** Retention rules are stronger when API behavior, database constraints, migration artifacts, and automated evidence all express the same policy.
 
 ---
 
 ## Future Plans
 -   User authentication and role-based access control.
+-   Soft delete and audit trail for retained medical records.
+-   PostgreSQL-backed HTTP integration tests for main API workflows.
 -   Real-time clinical note synchronization (SignalR).
 -   Cloud deployment (Azure or AWS).
