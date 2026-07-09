@@ -25,6 +25,6 @@ public sealed class ClinicalNoteConfig : IEntityTypeConfiguration<ClinicalNote>
         mb.HasOne(note => note.Pet)
             .WithMany(pet => pet.ClinicalNotes)
             .HasForeignKey(note => note.PetId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

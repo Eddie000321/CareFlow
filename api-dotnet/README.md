@@ -68,7 +68,7 @@ api-dotnet/
 ### Key Features
 - Complex type mapping for Owner addresses
 - Automatic age calculation for pets
-- Cascading deletes for data integrity
+- Retention-aware delete rules: owner/pet clinical history is restrictive, while report results cascade with their parent report
 - Indexed fields for performance
 
 ## API Endpoints
@@ -83,7 +83,7 @@ api-dotnet/
 ### Pets
 - `GET /api/pets` - List pets with calculated ages
 - `GET /api/pets/{id}` - Get pet by ID
-- `POST /api/pets` - Create pet
+- `POST /api/pets` - Create a pet with an existing `ownerId` (nested owner objects are not required)
 - `PUT /api/pets/{id}` - Update pet
 - `DELETE /api/pets/{id}` - Delete pet
 
@@ -196,11 +196,21 @@ The `Seed.cs` class provides bulk data generation for testing:
 - Clinical notes and lab reports with realistic distributions
 - Configurable years of historical data
 
+## Retention and Test Notes
+- Owner deletes are blocked when pets still exist.
+- Pet deletes are blocked when clinical notes or lab reports still exist.
+- EF Core relationships for retained owner/pet/clinical/lab parent records use restrictive delete behavior.
+- Pet age-label formatting, controller delete guards, production EF relationships, migration-snapshot consistency, and an in-memory HTTP workflow are covered by xUnit tests in `../api-dotnet.Tests`.
+- Run `dotnet test CareFlow.sln -c Release` from the repository root.
+- The HTTP test replaces PostgreSQL with an isolated EF Core in-memory model while retaining the real ASP.NET Core middleware and controller pipeline.
+- Migration `AlignRuntimeModelForRetention` aligns the checked-in snapshot with runtime mappings and fails clearly if existing bounded lab fields exceed the new limits.
+- Applying that migration to a representative PostgreSQL dataset and adding PostgreSQL-backed HTTP integration tests remain future work.
+
 ## Architecture Notes
 - Uses Entity Framework Code First approach
 - Fluent API for precise entity mapping
 - Automatic migrations in development mode
-- Repository pattern through DbContext
+- Direct EF Core data access through the application DbContext
 - Structured logging with Serilog
 
 ## API Documentation

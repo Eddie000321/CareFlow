@@ -82,10 +82,18 @@ public class OwnersController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteOwner(int id)
     {
-        var owner = await _context.Owners.FindAsync(id);
+        var owner = await _context.Owners
+            .Include(o => o.Pets)
+            .FirstOrDefaultAsync(o => o.Id == id);
+
         if (owner is null)
         {
             return NotFound();
+        }
+
+        if (owner.Pets.Count > 0)
+        {
+            return BadRequest("Cannot delete an owner with existing pets. Reassign or archive pets first.");
         }
 
         _context.Owners.Remove(owner);

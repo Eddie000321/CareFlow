@@ -19,6 +19,6 @@ public class Petconfig : IEntityTypeConfiguration<Pet>
         mb.HasOne(p => p.Owner)
           .WithMany(o => o.Pets)
           .HasForeignKey(p => p.OwnerId)
-          .OnDelete(DeleteBehavior.Cascade);
+          .OnDelete(DeleteBehavior.Restrict);
     }
 }

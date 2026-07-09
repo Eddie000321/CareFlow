@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using api_dotnet.Data;
@@ -12,9 +13,11 @@ using api_dotnet.Data;
 namespace api_dotnet.Migrations
 {
     [DbContext(typeof(CareflowDb))]
-    partial class CareflowDbModelSnapshot : ModelSnapshot
+    [Migration("20260709202756_AlignRuntimeModelForRetention")]
+    partial class AlignRuntimeModelForRetention
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

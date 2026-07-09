@@ -1,0 +1,43 @@
+# Codex security baseline
+# Keep local secrets and machine credentials out of Git.
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.csr
+id_rsa
+id_rsa.*
+id_dsa
+id_dsa.*
+id_ecdsa
+id_ecdsa.*
+id_ed25519
+id_ed25519.*
+.DS_Store
+Thumbs.db
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# .NET build, IDE, test, and local runtime output
+**/bin/
+**/obj/
+.vs/
+TestResults/
+artifacts/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.coverage
+*.coveragexml
+coverage*.xml
+*.log

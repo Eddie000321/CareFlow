@@ -30,7 +30,7 @@ public sealed class LabReportConfig : IEntityTypeConfiguration<LabReport>
         mb.HasOne(report => report.Pet)
             .WithMany(pet => pet.LabReports)
             .HasForeignKey(report => report.PetId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         mb.HasMany(report => report.Results)
             .WithOne(result => result.Report)
