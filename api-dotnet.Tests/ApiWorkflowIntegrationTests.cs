@@ -3,7 +3,9 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using api_dotnet.Data;
 using api_dotnet.Domain;
+using api_dotnet.Domain.Dtos;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -97,7 +99,7 @@ public sealed class ApiWorkflowIntegrationTests
     }
 
     [Fact]
-    public async Task PostPet_ReturnsBadRequest_WhenBirthDateIsMissing()
+    public async Task PostPet_ReturnsBirthDateValidationError_WhenBirthDateIsMissing()
     {
         await using var factory = new CareFlowApiFactory();
         using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
@@ -113,6 +115,58 @@ public sealed class ApiWorkflowIntegrationTests
         });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
+        Assert.NotNull(problem);
+        Assert.Contains(nameof(CreatePetRequest.BirthDate), problem.Errors.Keys);
+    }
+
+    [Fact]
+    public async Task PostLabReport_ReturnsFieldValidationErrors_WhenBoundedMetadataIsTooLong()
+    {
+        await using var factory = new CareFlowApiFactory();
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            BaseAddress = new Uri("https://localhost")
+        });
+
+        var response = await client.PostAsJsonAsync("/api/labreports", new
+        {
+            petId = 1,
+            testType = 0,
+            labName = new string('L', 129),
+            status = new string('S', 33)
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
+        Assert.NotNull(problem);
+        Assert.Contains(nameof(LabReport.LabName), problem.Errors.Keys);
+        Assert.Contains(nameof(LabReport.Status), problem.Errors.Keys);
+    }
+
+    [Fact]
+    public async Task PostLabResult_ReturnsFieldValidationErrors_WhenBoundedMetadataIsTooLong()
+    {
+        await using var factory = new CareFlowApiFactory();
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            BaseAddress = new Uri("https://localhost")
+        });
+
+        var response = await client.PostAsJsonAsync("/api/labresults", new
+        {
+            labReportId = 1,
+            analyteCode = "CBC",
+            analyteName = "Complete blood count",
+            units = new string('U', 33),
+            flag = new string('F', 9)
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
+        Assert.NotNull(problem);
+        Assert.Contains(nameof(LabResult.Units), problem.Errors.Keys);
+        Assert.Contains(nameof(LabResult.Flag), problem.Errors.Keys);
     }
 
     private static async Task<int> ReadIdAsync(HttpResponseMessage response)

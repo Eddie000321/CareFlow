@@ -90,7 +90,7 @@ api-dotnet/
     -   API testing available at the `/swagger` path.
 
 8.  **Automatic DB Migration (in Development mode)**
-    -   Executes `db.Database.Migrate()` in `Program.cs`.
+    -   Executes `await db.Database.MigrateAsync()` in `Program.cs`.
 
 9.  **Retention-Oriented Delete Guards**
     -   Owner and pet deletes are blocked when dependent pets, clinical notes, or lab reports exist.
@@ -156,9 +156,12 @@ dotnet test CareFlow.sln -c Release --no-build
 ```
 
 The same restore/build/test sequence runs for pushes and pull requests through
-`.github/workflows/dotnet.yml`.
+`.github/workflows/dotnet.yml`. CI also starts a clean PostgreSQL 16 service and
+applies all EF migrations twice; the second application verifies that the
+current migration set is idempotent on the resulting schema.
 
 The xUnit suite covers pet age-label boundaries, owner/pet retention guards,
+request validation for bounded lab metadata,
 runtime-to-migration schema consistency, and an in-memory HTTP workflow through
 the real ASP.NET Core middleware and controller pipeline. A PostgreSQL-backed
 integration suite remains future work.
@@ -167,8 +170,8 @@ integration suite remains future work.
 
 - **Problem:** Controller guards protected clinical history, but the checked-in EF snapshot still described cascading deletes and the pet-create endpoint exposed an EF navigation property as part of its request contract.
 - **Decision:** Add a reviewed migration that aligns foreign keys, query indexes, and bounded lab metadata with the runtime model, plus a focused `CreatePetRequest` DTO that accepts `ownerId` without requiring a nested owner entity. Length preflight checks stop the migration instead of silently trimming existing data.
-- **Verification:** A schema-contract test fails when the runtime model and latest snapshot diverge, while a `WebApplicationFactory` test exercises owner and pet creation, pet retrieval, guarded owner deletion, and ordered cleanup across the HTTP pipeline without a live production database.
-- **Limits:** The HTTP test uses EF's in-memory provider, the migration has not been applied to an existing PostgreSQL dataset, and authentication, soft delete, and audit history are not implemented.
+- **Verification:** A schema-contract test fails when the runtime model and latest snapshot diverge, `WebApplicationFactory` tests exercise the HTTP workflow and exact validation errors for bounded lab fields, and GitHub Actions applies the complete migration chain to an ephemeral PostgreSQL 16 database.
+- **Limits:** PostgreSQL CI proves clean-database migration and idempotency only; it does not validate the migration against representative existing data. HTTP persistence tests still use EF's in-memory provider, and authentication, soft delete, and audit history are not implemented. Running this migration's `Down` method intentionally restores the legacy cascade-delete actions, so downgrade requires an explicit retention-risk review. The API is unversioned despite the pet-create contract change, concurrent delete/dependency races are protected by restrictive foreign keys but are not normalized to a stable conflict response, and multi-navigation lab-report query plans have not been profiled at realistic cardinality.
 - **Learning:** Retention rules are stronger when API behavior, database constraints, migration artifacts, and automated evidence all express the same policy.
 
 ---

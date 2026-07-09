@@ -139,6 +139,8 @@ namespace api_dotnet.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            // A downgrade deliberately restores the previous cascade-delete contract.
+            // Review clinical-history retention impact before running this path.
             migrationBuilder.DropForeignKey(
                 name: "FK_ClinicalNotes_Pets_PetId",
                 table: "ClinicalNotes");
