@@ -1,10 +1,45 @@
-# CareFlow - Animal Hospital EMR System
+# CareFlow
 
-## Project Overview
-CareFlow is the backend API for an **Animal Hospital Electronic Medical Record (EMR)** system.
-It efficiently stores and manages medical data such as patient (pet) information, owner information, clinical notes, test results, and lab reports, providing them via a REST API.
+**A .NET 9 and PostgreSQL backend for veterinary EMR-style workflows with
+explicit retention rules for clinical history.**
 
----
+[![CI](https://github.com/Eddie000321/CareFlow/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Eddie000321/CareFlow/actions/workflows/dotnet.yml)
+[![Portfolio case study](https://img.shields.io/badge/Portfolio-Case_Study-006f9c)](https://eddie000321.github.io/#case-careflow)
+![.NET 9](https://img.shields.io/badge/.NET-9-512BD4?logo=dotnet)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-23_passing-587812)
+
+CareFlow manages owners, pets, clinical notes, lab reports, and lab results
+through documented REST APIs. The project focuses on domain lifecycle rather
+than disconnected CRUD: API guards, EF Core relationship configuration,
+migrations, and tests all express the same retention policy.
+
+## At a glance
+
+| Area | Evidence |
+| --- | --- |
+| Domain | Owners, pets, clinical notes, lab reports, and lab results |
+| Verification | 23 tests; Release build with zero warnings and errors |
+| Database contract | EF Core migrations checked against the runtime model and clean PostgreSQL 16 |
+| Security posture | Zero known NuGet vulnerabilities at the verified project snapshot |
+| Current boundary | Prototype; authentication, soft delete, and audit history are not implemented |
+
+## Domain lifecycle
+
+```mermaid
+flowchart LR
+    Owner -->|owns| Pet
+    Pet --> ClinicalNote[Clinical note]
+    Pet --> LabReport[Lab report]
+    LabReport --> LabResult[Lab result]
+    Delete[Delete request] --> Guard{Dependent history?}
+    Guard -->|yes| Block[Block deletion]
+    Guard -->|no| Apply[Apply deletion]
+```
+
+The diagram describes the implemented retention direction, not a production
+compliance claim. Restrictive foreign keys protect retained relationships even
+when controller-level checks race.
 
 ## Project Goals
 1.  **Centralized Medical Data Management**
